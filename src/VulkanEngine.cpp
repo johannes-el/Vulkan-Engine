@@ -1,6 +1,8 @@
 #include "VulkanEngine.hpp"
 #include "FileIO.hpp"
 #include "Logger.hpp"
+#include "vk_mem_alloc.h"
+#include "fastgltf/core.hpp"
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>
@@ -51,6 +53,7 @@ void VulkanEngine::initVulkan()
 	createSurface();
 	pickPhysicalDevice();
 	createLogicalDevice();
+	createCommandPool();
 	createSwapchain();
 	createImageViews();
 	createGraphicsPipeline();
@@ -536,4 +539,33 @@ VkShaderModule VulkanEngine::createShaderModule(const std::vector<char>& code)
 		throw std::runtime_error("Failed to create shader module!");
 	}
 	return shaderModule;
+}
+
+void VulkanEngine::createCommandPool()
+{
+	QueueFamilyIndices indices = findQueueFamilies(_vk.physicalDevice);
+
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
+	poolInfo.flags = 0;	
+
+	if (vkCreateCommandPool(_vk.device, &poolInfo, nullptr, &_vk.commandPool) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create command pool!");
+	}
+}
+
+void VulkanEngine::createCommandBuffers()
+{
+	_vk.commandBuffers.resize(2);
+
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = _vk.commandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = static_cast<uint32_t>(_vk.commandBuffers.size());
+
+	if (vkAllocateCommandBuffers(_vk.device, &allocInfo, _vk.commandBuffers.data()) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to allocate command buffers!");
+	}
 }

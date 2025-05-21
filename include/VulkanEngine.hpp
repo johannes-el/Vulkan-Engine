@@ -36,6 +36,9 @@ private:
 		std::vector<VkImageView> swapchainImageViews;
 		VkFormat swapchainImageFormat;
 		VkExtent2D swapchainExtent;
+
+		VkCommandPool commandPool;
+		std::vector<VkCommandBuffer> commandBuffers;
 	};
 
 	// --- Members ---
@@ -79,4 +82,8 @@ private:
 	// --- Graphics Pipeline ---
 	void createGraphicsPipeline();
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+
+	// --- Command Pool ---
+	void createCommandPool();
+	void createCommandBuffers();
 };

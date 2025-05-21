@@ -26,6 +26,10 @@ target_link_libraries(VulkanApp PRIVATE Vulkan::Vulkan glfw)
 
 target_include_directories(VulkanApp
     PRIVATE include
+    PRIVATE external/VulkanMemoryAllocator/include
 )
+
+add_subdirectory(external/fastgltf)
+target_link_libraries(VulkanApp PRIVATE fastgltf)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES})

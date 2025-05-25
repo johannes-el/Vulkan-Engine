@@ -39,17 +39,35 @@ private:
 
 		VkCommandPool commandPool;
 		std::vector<VkCommandBuffer> commandBuffers;
+	
+		std::vector<VkFramebuffer> swapchainFramebuffers;
+		VkRenderPass renderPass;
+		VkPipelineLayout pipelineLayout;
+		VkPipeline graphicsPipeline;
+	
+		std::vector<VkSemaphore> imageAvailableSemaphores;
+		std::vector<VkSemaphore> renderFinishedSemaphores;
+		std::vector<VkFence> inFlightFences;
+		std::vector<VkFence> imagesInFlight;
+		
+		bool framebufferResized = false;
+		uint32_t currentFrame = 0;
 	};
 
 	// --- Members ---
 	GLFWwindow* _window = nullptr;
 	VulkanContext _vk;
 
+	void initImgui();
+
 	// --- Main flow ---
 	void initWindow();
 	void initVulkan();
 	void mainLoop();
 	void cleanup();
+
+	// --- Callbacks ---
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
 	// --- Instance & Debug ---
 	void createInstance();
@@ -78,12 +96,30 @@ private:
 	// --- Image Views ---
 	void createImageViews();
 
-
 	// --- Graphics Pipeline ---
 	void createGraphicsPipeline();
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 
+	// --- Render Pass ---
+	void createRenderPass();
+
+	// --- Framebuffers ---
+	void createFramebuffers();
+
 	// --- Command Pool ---
 	void createCommandPool();
 	void createCommandBuffers();
+
+	// --- Command Buffer ---
+	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+	// --- Draw Frame ---
+	void drawFrame();
+
+	// --- Sync Objects ---
+	void createSyncObjects();
+
+	// --- Swapchain ---
+	void recreateSwapchain();
+	void cleanupSwapchain();
 };

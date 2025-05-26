@@ -5,7 +5,9 @@
 #include <vector>
 #include <optional>
 #include <array>
+#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 struct Vertex {
 	glm::vec2 position;
@@ -34,6 +36,12 @@ struct Vertex {
 		attributeDescriptions[1].offset = offsetof(Vertex, color);
 		return attributeDescriptions;
 	}
+};
+
+struct UniformBufferObject {
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
 };
 
 class VulkanEngine {
@@ -86,6 +94,18 @@ private:
 	
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;
+	
+		VkBuffer indexBuffer;
+		VkDeviceMemory indexBufferMemory;
+	
+		std::vector<VkBuffer> uniformBuffers;
+		std::vector<VkDeviceMemory> uniformBuffersMemory;
+		std::vector<void*> uniformBuffersMapped;
+	
+		VkDescriptorSetLayout descriptorSetLayout;
+		VkDescriptorPool descriptorPool;
+	
+		std::vector<VkDescriptorSet> descriptorSets;
 	};
 
 	// --- Members ---
@@ -160,11 +180,21 @@ private:
 	// --- Vertex Buffer ---
 	void createVertexBuffer();
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 
 	// --- Index Buffer ---
 	void createIndexBuffer();
 
 	// --- Descriptor Set ---
-	void createDescriptorSet();
+	void createDescriptorSetLayout();
+
+	// --- Uniform Buffer ---
+	void createUniformBuffers();
+	void updateUniformBuffer(uint32_t currentImage);
+
+	// --- Descriptor Pool ---
+	void createDescriptorPool();
+	void createDescriptorSets();
 };

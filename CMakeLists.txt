@@ -13,6 +13,8 @@ add_executable(VulkanApp
     src/VulkanEngine.cpp
     src/Logger.cpp
     src/FileIO.cpp
+    src/VulkanInstance.cpp
+    src/VulkanSwapchain.cpp
 )
 
 add_library(imgui

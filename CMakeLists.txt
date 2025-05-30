@@ -14,18 +14,19 @@ add_executable(VulkanApp
     src/Logger.cpp
     src/FileIO.cpp
     src/Mesh.cpp
-    src/VulkanEngine.cpp
-    src/VulkanInstance.cpp
-    src/VulkanSwapchain.cpp
-    src/VulkanDevice.cpp
-    src/VulkanImage.cpp
-    src/VulkanSync.cpp
-    src/VulkanBuffer.cpp
-    src/VulkanCommandBuffer.cpp
-    src/VulkanDescriptor.cpp
-    src/VulkanImGui.cpp
-    src/VulkanPipeline.cpp
-    src/VulkanRenderPass.cpp
+
+    src/vulkan/VulkanEngine.cpp
+    src/vulkan/VulkanInstance.cpp
+    src/vulkan/VulkanSwapchain.cpp
+    src/vulkan/VulkanDevice.cpp
+    src/vulkan/VulkanImage.cpp
+    src/vulkan/VulkanSync.cpp
+    src/vulkan/VulkanBuffer.cpp
+    src/vulkan/VulkanCommandBuffer.cpp
+    src/vulkan/VulkanDescriptor.cpp
+    src/vulkan/VulkanImGui.cpp
+    src/vulkan/VulkanPipeline.cpp
+    src/vulkan/VulkanRenderPass.cpp
 )
 
 add_library(imgui

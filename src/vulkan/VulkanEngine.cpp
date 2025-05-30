@@ -1,21 +1,21 @@
-#include "VulkanInstance.hpp"
-#include "VulkanDevice.hpp"
-#include "VulkanEngine.hpp"
-#include "VulkanSwapchain.hpp"
-#include "VulkanImage.hpp"
-#include "VulkanRenderPass.hpp"
-#include "VulkanDescriptor.hpp"
-#include "VulkanPipeline.hpp"
-#include "VulkanBuffer.hpp"
-#include "VulkanImGui.hpp"
-#include "VulkanSync.hpp"
-#include "VulkanCommandBuffer.hpp"
+#include "vulkan/VulkanInstance.hpp"
+#include "vulkan/VulkanDevice.hpp"
+#include "vulkan/VulkanEngine.hpp"
+#include "vulkan/VulkanSwapchain.hpp"
+#include "vulkan/VulkanImage.hpp"
+#include "vulkan/VulkanRenderPass.hpp"
+#include "vulkan/VulkanDescriptor.hpp"
+#include "vulkan/VulkanPipeline.hpp"
+#include "vulkan/VulkanBuffer.hpp"
+#include "vulkan/VulkanImGui.hpp"
+#include "vulkan/VulkanSync.hpp"
+#include "vulkan/VulkanCommandBuffer.hpp"
+#include "Assets/GltfLoader.hpp"
 
 #include "Mesh.hpp"
 #include "FileIO.hpp"
 #include "Logger.hpp"
 #include "vk_mem_alloc.h"
-#include "fastgltf/core.hpp"
 
 void VulkanEngine::run()
 {
@@ -52,6 +52,8 @@ void VulkanEngine::initWindow()
 void VulkanEngine::initVulkan()
 {
 	Mesh mesh;
+
+	std::filesystem::path path = "../models/Fox.glb";
 
 	createInstance(this);
 	setupDebugMessenger(this);

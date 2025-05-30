@@ -14,6 +14,7 @@ add_executable(VulkanApp
     src/Logger.cpp
     src/FileIO.cpp
     src/Mesh.cpp
+    src/Assets/GltfLoader.cpp
 
     src/vulkan/VulkanEngine.cpp
     src/vulkan/VulkanInstance.cpp

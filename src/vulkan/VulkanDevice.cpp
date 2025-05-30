@@ -1,6 +1,6 @@
-#include "VulkanDevice.hpp"
-#include "VulkanEngine.hpp"
-#include "VulkanSwapchain.hpp"
+#include "vulkan/VulkanDevice.hpp"
+#include "vulkan/VulkanEngine.hpp"
+#include "vulkan/VulkanSwapchain.hpp"
 #include <stdexcept>
 #include <vector>
 #include <set>

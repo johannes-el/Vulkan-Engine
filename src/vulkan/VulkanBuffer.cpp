@@ -1,5 +1,5 @@
-#include "VulkanEngine.hpp"
-#include "VulkanBuffer.hpp"
+#include "vulkan/VulkanEngine.hpp"
+#include "vulkan/VulkanBuffer.hpp"
 #include <stdexcept>
 #include <cstring>
 #include <chrono>
@@ -12,14 +12,25 @@ void createVertexBuffer(std::vector<Vertex> vertices, VulkanEngine* engine)
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory, engine);
+	createBuffer(bufferSize,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		stagingBuffer,
+		stagingBufferMemory,
+		engine);
 
 	void* data;
 	vkMapMemory(engine->_vk.device, stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, vertices.data(), (size_t)bufferSize);
 	vkUnmapMemory(engine->_vk.device, stagingBufferMemory);
 
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, engine->_vk.vertexBuffer, engine->_vk.vertexBufferMemory, engine);
+	createBuffer(bufferSize,
+		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		engine->_vk.vertexBuffer,
+		engine->_vk.vertexBufferMemory,
+		engine);
+
 	copyBuffer(stagingBuffer, engine->_vk.vertexBuffer, bufferSize, engine);
 
 	vkDestroyBuffer(engine->_vk.device, stagingBuffer, nullptr);

@@ -1,5 +1,5 @@
-#include "VulkanEngine.hpp"
-#include "VulkanPipeline.hpp"
+#include "vulkan/VulkanEngine.hpp"
+#include "vulkan/VulkanPipeline.hpp"
 #include "FileIO.hpp"
 
 void createGraphicsPipeline(VulkanEngine* engine)

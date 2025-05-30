@@ -1,5 +1,5 @@
-#include "VulkanInstance.hpp"
-#include "VulkanEngine.hpp"
+#include "vulkan/VulkanInstance.hpp"
+#include "vulkan/VulkanEngine.hpp"
 #include <iostream>
 
 const std::vector<const char*> validationLayers = {

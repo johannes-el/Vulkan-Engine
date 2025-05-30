@@ -1,7 +1,7 @@
 #include <stdexcept>
-#include "VulkanEngine.hpp"
-#include "VulkanCommandBuffer.hpp"
-#include "VulkanDevice.hpp"
+#include "vulkan/VulkanEngine.hpp"
+#include "vulkan/VulkanCommandBuffer.hpp"
+#include "vulkan/VulkanDevice.hpp"
 
 void createCommandPool(VulkanEngine* engine)
 {

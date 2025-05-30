@@ -1,4 +1,4 @@
-#include "VulkanSync.hpp"
+#include "vulkan/VulkanSync.hpp"
 
 void createSyncObjects(VulkanEngine* engine)
 {

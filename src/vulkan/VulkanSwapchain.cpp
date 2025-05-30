@@ -1,9 +1,9 @@
-#include "VulkanSwapchain.hpp"
-#include "VulkanDevice.hpp"
-#include "VulkanImage.hpp"
-#include "VulkanSync.hpp"
-#include "VulkanRenderPass.hpp"
-#include "VulkanEngine.hpp"
+#include "vulkan/VulkanSwapchain.hpp"
+#include "vulkan/VulkanDevice.hpp"
+#include "vulkan/VulkanImage.hpp"
+#include "vulkan/VulkanSync.hpp"
+#include "vulkan/VulkanRenderPass.hpp"
+#include "vulkan/VulkanEngine.hpp"
 #include <stdexcept>
 #include <algorithm>
 

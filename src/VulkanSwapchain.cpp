@@ -1,4 +1,9 @@
 #include "VulkanSwapchain.hpp"
+#include "VulkanDevice.hpp"
+#include "VulkanImage.hpp"
+#include "VulkanSync.hpp"
+#include "VulkanRenderPass.hpp"
+#include "VulkanEngine.hpp"
 #include <stdexcept>
 #include <algorithm>
 
@@ -25,7 +30,7 @@ void createSwapchain(VulkanEngine* engine)
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
-	VulkanEngine::QueueFamilyIndices indices = engine->findQueueFamilies(engine->_vk.physicalDevice);
+	QueueFamilyIndices indices = findQueueFamilies(engine->_vk.physicalDevice, engine);
 	uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -54,6 +59,40 @@ void createSwapchain(VulkanEngine* engine)
 	engine->_vk.swapchainImageFormat = surfaceFormat.format;
 	engine->_vk.swapchainExtent = extent;
 }
+
+void recreateSwapchain(VulkanEngine* engine)
+{
+
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(engine->_window, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(engine->_window, &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(engine->_vk.device);
+
+	cleanupSwapchain(engine);
+	cleanupSyncObjects(engine);
+	createSwapchain(engine);
+	createImageViews(engine);
+	createFramebuffers(engine);
+	createSyncObjects(engine);
+}
+
+void cleanupSwapchain(VulkanEngine* engine)
+{
+	for (auto framebuffer : engine->_vk.swapchainFramebuffers) {
+		vkDestroyFramebuffer(engine->_vk.device, framebuffer, nullptr);
+	}
+
+	for (auto imageView : engine->_vk.swapchainImageViews) {
+		vkDestroyImageView(engine->_vk.device, imageView, nullptr);
+	}
+
+	vkDestroySwapchainKHR(engine->_vk.device, engine->_vk.swapchain, nullptr);
+}
+
 
 SwapChainSupportDetails querySwapChainSupport(VulkanEngine* engine, VkPhysicalDevice device)
 {

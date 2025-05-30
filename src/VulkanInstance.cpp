@@ -1,5 +1,5 @@
-#include "VulkanEngine.hpp"
 #include "VulkanInstance.hpp"
+#include "VulkanEngine.hpp"
 #include <iostream>
 
 const std::vector<const char*> validationLayers = {
@@ -112,4 +112,12 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 {
 	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 	if (func) func(instance, messenger, pAllocator);
+}
+
+void createSurface(VulkanEngine* engine)
+{
+	if (glfwCreateWindowSurface(engine->_vk.instance, engine->_window, nullptr, &engine->_vk.surface) !=
+		VK_SUCCESS) {
+		throw std::runtime_error("Failed to create window surface!");
+	}
 }

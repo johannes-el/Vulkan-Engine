@@ -21,3 +21,6 @@ void setupDebugMessenger(VulkanEngine* engine);
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 VkResult createDebugUtilsMessengerEXT(VulkanEngine* engine, const VkDebugUtilsMessengerCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugUtilsMessengerEXT*);
 void DestroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks*);
+
+// --- Surface ---
+void createSurface(VulkanEngine* engine);

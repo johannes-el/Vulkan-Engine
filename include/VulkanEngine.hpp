@@ -6,17 +6,21 @@
 #include <optional>
 #include <array>
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 constexpr uint32_t SCREEN_WIDTH = 800;
 constexpr uint32_t SCREEN_HEIGHT = 600;
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 const bool bEnableValidationLayers = true;
 
 struct Vertex {
-	glm::vec2 position;
+	glm::vec3 position;
 	glm::vec3 color;
+	glm::vec2 texCoord;
 
 	static VkVertexInputBindingDescription getBindingDescription()
 	{
@@ -27,18 +31,24 @@ struct Vertex {
 		return bindingDescription;
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+	static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
 	{
-		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[0].offset = offsetof(Vertex, position);
 
 		attributeDescriptions[1].binding = 0;
 		attributeDescriptions[1].location = 1;
 		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+		attributeDescriptions[2].binding = 0;
+		attributeDescriptions[2].location = 2;
+		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+
 		return attributeDescriptions;
 	}
 };
@@ -94,19 +104,14 @@ struct VulkanContext {
 	VkDescriptorPool descriptorPool;
 
 	std::vector<VkDescriptorSet> descriptorSets;
+
+	uint32_t indexCount = 0;
 };
 
 
 class VulkanEngine {
 public:
 	void run();
-
-	// --- Structs ---
-	struct QueueFamilyIndices {
-		std::optional<uint32_t> graphicsFamily;
-		std::optional<uint32_t> presentFamily;
-		bool isComplete() const { return graphicsFamily.has_value(); }
-	};
 
 	// --- Members ---
 	GLFWwindow* _window = nullptr;
@@ -123,62 +128,6 @@ public:
 	// --- Callbacks ---
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
-	// --- Surface & Device ---
-	void createSurface();
-	void pickPhysicalDevice();
-	bool isDeviceSuitable(VkPhysicalDevice);
-	bool checkDeviceExtensionSupport(VkPhysicalDevice);
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice);
-	void createLogicalDevice();
-
-	// --- Image Views ---
-	void createImageViews();
-
-	// --- Graphics Pipeline ---
-	void createGraphicsPipeline();
-	VkShaderModule createShaderModule(const std::vector<char>& code);
-
-	// --- Render Pass ---
-	void createRenderPass();
-
-	// --- Framebuffers ---
-	void createFramebuffers();
-
-	// --- Command Pool ---
-	void createCommandPool();
-	void createCommandBuffers();
-
-	// --- Command Buffer ---
-	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-
 	// --- Draw Frame ---
 	void drawFrame();
-
-	// --- Sync Objects ---
-	void createSyncObjects();
-
-	// --- Swapchain ---
-	void recreateSwapchain();
-	void cleanupSwapchain();
-
-	// --- Vertex Buffer ---
-	void createVertexBuffer();
-	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
-	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
-
-	// --- Index Buffer ---
-	void createIndexBuffer();
-
-	// --- Descriptor Set ---
-	void createDescriptorSetLayout();
-
-	// --- Uniform Buffer ---
-	void createUniformBuffers();
-	void updateUniformBuffer(uint32_t currentImage);
-
-	// --- Descriptor Pool ---
-	void createDescriptorPool();
-	void createDescriptorSets();
 };

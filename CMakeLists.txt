@@ -3,6 +3,7 @@ project(VulkanProject LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -10,11 +11,21 @@ include_directories(include)
 
 add_executable(VulkanApp
     src/main.cpp
-    src/VulkanEngine.cpp
     src/Logger.cpp
     src/FileIO.cpp
+    src/Mesh.cpp
+    src/VulkanEngine.cpp
     src/VulkanInstance.cpp
     src/VulkanSwapchain.cpp
+    src/VulkanDevice.cpp
+    src/VulkanImage.cpp
+    src/VulkanSync.cpp
+    src/VulkanBuffer.cpp
+    src/VulkanCommandBuffer.cpp
+    src/VulkanDescriptor.cpp
+    src/VulkanImGui.cpp
+    src/VulkanPipeline.cpp
+    src/VulkanRenderPass.cpp
 )
 
 add_library(imgui

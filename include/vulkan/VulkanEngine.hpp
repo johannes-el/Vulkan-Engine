@@ -53,6 +53,10 @@ struct Vertex {
 	}
 };
 
+struct Triangle {
+	uint32_t a, b, c;
+};
+
 struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
@@ -86,7 +90,7 @@ struct VulkanContext {
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
-	
+
 	bool framebufferResized = false;
 	uint32_t currentFrame = 0;
 

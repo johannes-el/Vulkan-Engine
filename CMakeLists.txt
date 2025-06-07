@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 4.0)
 project(VulkanProject LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -14,6 +14,7 @@ add_executable(VulkanApp
     src/Logger.cpp
     src/FileIO.cpp
     src/Mesh.cpp
+    src/Texture.cpp
     src/Assets/GltfLoader.cpp
 
     src/vulkan/VulkanEngine.cpp
@@ -50,8 +51,9 @@ if (NOT Vulkan_FOUND)
 endif()
 
 find_package(glfw3 REQUIRED)
+find_package(simdjson REQUIRED)
 
-target_link_libraries(VulkanApp PRIVATE Vulkan::Vulkan glfw imgui)
+target_link_libraries(VulkanApp PRIVATE Vulkan::Vulkan glfw imgui simdjson::simdjson)
 
 target_include_directories(VulkanApp
     PRIVATE include

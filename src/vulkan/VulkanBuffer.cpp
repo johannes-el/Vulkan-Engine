@@ -152,7 +152,7 @@ void createUniformBuffers(VulkanEngine* engine)
 	}
 }
 
-void updateUniformBuffer(uint32_t currentImage, VulkanEngine* engine)
+void updateUniformBuffer(uint32_t currentImage, VulkanEngine* engine, float scale)
 {
 	static auto startTime = std::chrono::high_resolution_clock::now();
 	auto currentTime = std::chrono::high_resolution_clock::now();
@@ -160,6 +160,8 @@ void updateUniformBuffer(uint32_t currentImage, VulkanEngine* engine)
 
 	UniformBufferObject ubo{};
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.model = glm::scale(ubo.model, glm::vec3(scale));
+
 	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj = glm::perspective(glm::radians(45.0f), engine->_vk.swapchainExtent.width / (float)engine->_vk.swapchainExtent.height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;

@@ -74,6 +74,8 @@ void VulkanEngine::initVulkan()
 	createDescriptorSets(this);
 	createCommandBuffers(this);
 	createSyncObjects(this);
+
+	::initImgui(_window, this);
 }
 
 void VulkanEngine::mainLoop()
@@ -88,6 +90,10 @@ void VulkanEngine::cleanup()
 {
 	vkDeviceWaitIdle(_vk.device);
 
+	ImGui_ImplVulkan_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
 	cleanupSwapchain(this);
 
 	for (size_t i = 0; i < _vk.swapchainImages.size(); i++) {
@@ -96,6 +102,7 @@ void VulkanEngine::cleanup()
 	}
 
 	vkDestroyDescriptorPool(_vk.device, _vk.descriptorPool, nullptr);
+	vkDestroyDescriptorPool(_vk.device, _vk.imguiDescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(_vk.device, _vk.descriptorSetLayout, nullptr);
 
 	vkDestroyBuffer(_vk.device, _vk.vertexBuffer, nullptr);
@@ -131,68 +138,81 @@ void VulkanEngine::cleanup()
 
 void VulkanEngine::drawFrame()
 {
-    vkWaitForFences(_vk.device, 1, &_vk.inFlightFences[_vk.currentFrame], VK_TRUE, UINT64_MAX);
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
-    uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(
-        _vk.device, _vk.swapchain, UINT64_MAX,
-        _vk.imageAvailableSemaphores[_vk.currentFrame], VK_NULL_HANDLE, &imageIndex);
+	ImGui::Begin("Control Panel");
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        vkDeviceWaitIdle(_vk.device);
-        recreateSwapchain(this);
-        return;
-    }
+	static float cubeScale = 1.0f;
+	ImGui::SliderFloat("Cube Scale", &cubeScale, 0.1f, 3.0f);
 
-    if (_vk.imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-        vkWaitForFences(_vk.device, 1, &_vk.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
-    }
-    _vk.imagesInFlight[imageIndex] = _vk.inFlightFences[_vk.currentFrame];
+	ImGui::End();
 
-    vkResetFences(_vk.device, 1, &_vk.inFlightFences[_vk.currentFrame]);
-    vkResetCommandBuffer(_vk.commandBuffers[_vk.currentFrame], 0);
+	ImGui::Render();
 
-    recordCommandBuffer(_vk.commandBuffers[_vk.currentFrame], imageIndex, this);
+	vkWaitForFences(_vk.device, 1, &_vk.inFlightFences[_vk.currentFrame], VK_TRUE, UINT64_MAX);
 
-	updateUniformBuffer(imageIndex, this);
+	uint32_t imageIndex;
+	VkResult result = vkAcquireNextImageKHR(
+		_vk.device, _vk.swapchain, UINT64_MAX,
+		_vk.imageAvailableSemaphores[_vk.currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+		vkDeviceWaitIdle(_vk.device);
+		recreateSwapchain(this);
+		return;
+	}
 
-    VkSemaphore waitSemaphores[] = { _vk.imageAvailableSemaphores[_vk.currentFrame] };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
+	if (_vk.imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+		vkWaitForFences(_vk.device, 1, &_vk.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+	}
+	_vk.imagesInFlight[imageIndex] = _vk.inFlightFences[_vk.currentFrame];
 
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &_vk.commandBuffers[_vk.currentFrame];
+	vkResetFences(_vk.device, 1, &_vk.inFlightFences[_vk.currentFrame]);
+	vkResetCommandBuffer(_vk.commandBuffers[_vk.currentFrame], 0);
 
-    VkSemaphore signalSemaphores[] = { _vk.renderFinishedSemaphores[imageIndex] };
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
+	recordCommandBuffer(_vk.commandBuffers[_vk.currentFrame], imageIndex, this);
 
-    if (vkQueueSubmit(_vk.graphicsQueue, 1, &submitInfo, _vk.inFlightFences[_vk.currentFrame]) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to submit draw command buffer!");
-    }
+	updateUniformBuffer(imageIndex, this, cubeScale);
 
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSwapchainKHR swapChains[] = { _vk.swapchain };
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
+	VkSemaphore waitSemaphores[] = { _vk.imageAvailableSemaphores[_vk.currentFrame] };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
 
-    result = vkQueuePresentKHR(_vk.presentQueue, &presentInfo);
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &_vk.commandBuffers[_vk.currentFrame];
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _vk.framebufferResized) {
-        _vk.framebufferResized = false;
-        vkDeviceWaitIdle(_vk.device);
-        recreateSwapchain(this);
-    }
+	VkSemaphore signalSemaphores[] = { _vk.renderFinishedSemaphores[imageIndex] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
 
-    _vk.currentFrame = (_vk.currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	if (vkQueueSubmit(_vk.graphicsQueue, 1, &submitInfo, _vk.inFlightFences[_vk.currentFrame]) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { _vk.swapchain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &imageIndex;
+
+	result = vkQueuePresentKHR(_vk.presentQueue, &presentInfo);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _vk.framebufferResized) {
+		_vk.framebufferResized = false;
+		vkDeviceWaitIdle(_vk.device);
+		recreateSwapchain(this);
+	}
+
+	_vk.currentFrame = (_vk.currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

@@ -63,6 +63,30 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 proj;
 };
 
+struct InstanceData {
+	alignas(16) glm::mat4 model;
+
+	static VkVertexInputBindingDescription getInstanceBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription{};
+		bindingDescription.binding = 1;
+		bindingDescription.stride = sizeof(InstanceData);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
+		return bindingDescription;
+	}
+
+	static std::array<VkVertexInputAttributeDescription, 4> getInstanceAttributeDescriptions() {
+		std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
+
+		for (int i = 0; i < 4; i++) {
+			attributeDescriptions[i].binding = 1;
+			attributeDescriptions[i].location = 3 + i;
+			attributeDescriptions[i].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+			attributeDescriptions[i].offset = offsetof(InstanceData, model) + sizeof(glm::vec4) * i;
+		}
+
+		return attributeDescriptions;
+	}
+};
 
 struct VulkanContext {
 	VkInstance instance;
@@ -100,16 +124,21 @@ struct VulkanContext {
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
 
+	VkBuffer instanceBuffer;
+	VkDeviceMemory instanceBufferMemory;
+
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	std::vector<void*> uniformBuffersMapped;
 
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorPool descriptorPool;
+	VkDescriptorPool imguiDescriptorPool;
 
 	std::vector<VkDescriptorSet> descriptorSets;
 
 	uint32_t indexCount = 0;
+	uint32_t instanceCount;
 };
 
 

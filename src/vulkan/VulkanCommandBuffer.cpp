@@ -2,6 +2,7 @@
 #include "vulkan/VulkanEngine.hpp"
 #include "vulkan/VulkanCommandBuffer.hpp"
 #include "vulkan/VulkanDevice.hpp"
+#include "vulkan/VulkanImGui.hpp"
 
 void createCommandPool(VulkanEngine* engine)
 {
@@ -83,7 +84,8 @@ void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, Vul
 
 	vkCmdDrawIndexed(commandBuffer, engine->_vk.indexCount, 1, 0, 0, 0);
 
-	vkCmdEndRenderPass(commandBuffer);
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
+	vkCmdEndRenderPass(commandBuffer);
 	vkEndCommandBuffer(commandBuffer);
 }

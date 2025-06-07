@@ -29,14 +29,14 @@ void createSyncObjects(VulkanEngine* engine)
 
 void cleanupSyncObjects(VulkanEngine* engine)
 {
-    for (auto sem : engine->_vk.imageAvailableSemaphores)
-        vkDestroySemaphore(engine->_vk.device, sem, nullptr);
-    for (auto sem : engine->_vk.renderFinishedSemaphores)
-        vkDestroySemaphore(engine->_vk.device, sem, nullptr);
-    for (auto fence : engine->_vk.inFlightFences)
-        vkDestroyFence(engine->_vk.device, fence, nullptr);
-    engine->_vk.imageAvailableSemaphores.clear();
-    engine->_vk.renderFinishedSemaphores.clear();
-    engine->_vk.inFlightFences.clear();
-    engine->_vk.imagesInFlight.clear();
+	for (auto sem : engine->_vk.imageAvailableSemaphores)
+		vkDestroySemaphore(engine->_vk.device, sem, nullptr);
+	for (auto sem : engine->_vk.renderFinishedSemaphores)
+		vkDestroySemaphore(engine->_vk.device, sem, nullptr);
+	for (auto fence : engine->_vk.inFlightFences)
+		vkDestroyFence(engine->_vk.device, fence, nullptr);
+	engine->_vk.imageAvailableSemaphores.clear();
+	engine->_vk.renderFinishedSemaphores.clear();
+	engine->_vk.inFlightFences.clear();
+	engine->_vk.imagesInFlight.clear();
 }

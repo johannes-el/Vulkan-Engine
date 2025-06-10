@@ -4,7 +4,7 @@
 #include "VulkanEngine.hpp"
 
 void createVertexBuffer(std::vector<Vertex> vertices, VulkanEngine* engine);
-void createIndexBuffer(std::vector<uint16_t> indices, VulkanEngine* engine);
+void createIndexBuffer(std::vector<uint32_t> indices, VulkanEngine* engine);
 void createUniformBuffers(VulkanEngine* engine);
 void updateUniformBuffer(uint32_t currentImage, VulkanEngine* engine, float scale);
 void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VulkanEngine* engine);

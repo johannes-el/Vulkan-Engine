@@ -13,8 +13,6 @@ add_executable(VulkanApp
     src/main.cpp
     src/Logger.cpp
     src/FileIO.cpp
-    src/Mesh.cpp
-    src/Texture.cpp
     src/Assets/GltfLoader.cpp
 
     src/vulkan/VulkanEngine.cpp

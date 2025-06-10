@@ -78,7 +78,7 @@ void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, Vul
 	VkDeviceSize offsets[] = {0};
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
-	vkCmdBindIndexBuffer(commandBuffer, engine->_vk.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindIndexBuffer(commandBuffer, engine->_vk.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, engine->_vk.pipelineLayout, 0, 1, &engine->_vk.descriptorSets[imageIndex], 0, nullptr);
 

@@ -11,8 +11,8 @@
 #include "vulkan/VulkanSync.hpp"
 #include "vulkan/VulkanCommandBuffer.hpp"
 #include "Assets/GltfLoader.hpp"
+#include "Assets/SceneTypes.hpp"
 
-#include "Mesh.hpp"
 #include "FileIO.hpp"
 #include "Logger.hpp"
 #include "vk_mem_alloc.h"
@@ -51,9 +51,33 @@ void VulkanEngine::initWindow()
 
 void VulkanEngine::initVulkan()
 {
-	Mesh mesh;
+	Scene::Primitive primitive;
+	primitive.vertices = {
+		{{-0.5f, -0.5f,  0.5f}, {1,0,0}, {0.0f, 0.0f}},
+		{{ 0.5f, -0.5f,  0.5f}, {0,1,0}, {1.0f, 0.0f}},
+		{{ 0.5f,  0.5f,  0.5f}, {0,0,1}, {1.0f, 1.0f}},
+		{{-0.5f,  0.5f,  0.5f}, {1,1,1}, {0.0f, 1.0f}},
+		{{-0.5f, -0.5f, -0.5f}, {1,0,0}, {1.0f, 0.0f}},
+		{{ 0.5f, -0.5f, -0.5f}, {0,1,0}, {0.0f, 0.0f}},
+		{{ 0.5f,  0.5f, -0.5f}, {0,0,1}, {0.0f, 1.0f}},
+		{{-0.5f,  0.5f, -0.5f}, {1,1,1}, {1.0f, 1.0f}},
+	};
+
+	primitive.indices = {
+		0, 1, 2, 2, 3, 0,
+		1, 5, 6, 6, 2, 1,
+		5, 4, 7, 7, 6, 5,
+		4, 0, 3, 3, 7, 4,
+		3, 2, 6, 6, 7, 3,
+		4, 5, 1, 1, 0, 4,
+	};
 
 	std::filesystem::path path = "../models/Fox.glb";
+	Assets::GltfModel model;
+	if (model.Load(0)) {
+		createVertexBuffer(model.GetVertices(), this);
+		createIndexBuffer(model.GetIndices(), this);
+	}
 
 	createInstance(this);
 	setupDebugMessenger(this);
@@ -67,8 +91,8 @@ void VulkanEngine::initVulkan()
 	createGraphicsPipeline(this);
 	createFramebuffers(this);
 	createCommandPool(this);
-	createVertexBuffer(mesh.vertices, this);
-	createIndexBuffer(mesh.indices, this);
+	createVertexBuffer(primitive.vertices, this);
+	createIndexBuffer(primitive.indices, this);
 	createUniformBuffers(this);
 	createDescriptorPool(this);
 	createDescriptorSets(this);

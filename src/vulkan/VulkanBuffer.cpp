@@ -116,7 +116,7 @@ uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, V
 	throw std::runtime_error("Failed to find suitable memory type!");
 }
 
-void createIndexBuffer(std::vector<uint16_t> indices, VulkanEngine* engine)
+void createIndexBuffer(std::vector<uint32_t> indices, VulkanEngine* engine)
 {
 	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 	VkBuffer stagingBuffer;

@@ -9,6 +9,7 @@
 #include "vulkan/VulkanBuffer.hpp"
 #include "vulkan/VulkanImGui.hpp"
 #include "vulkan/VulkanSync.hpp"
+#include "vulkan/VulkanTexture.hpp"
 #include "vulkan/VulkanCommandBuffer.hpp"
 #include "Assets/GltfLoader.hpp"
 #include "Assets/SceneTypes.hpp"
@@ -16,6 +17,7 @@
 #include "FileIO.hpp"
 #include "Logger.hpp"
 #include "vk_mem_alloc.h"
+#include <iostream>
 
 void VulkanEngine::run()
 {
@@ -34,11 +36,17 @@ void VulkanEngine::framebufferResizeCallback(GLFWwindow* window, int width, int 
 void VulkanEngine::initWindow()
 {
 	Logger::Info("Initializing window");
+	setenv("GLFW_PLATFORM", "x11", 1);
+
 	if (!glfwInit())
 		throw std::runtime_error("GLFW init failed");
 
+	std::cout << "Platform: " << glfwGetPlatform() << std::endl;
+
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+
 	_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Vulkan", nullptr, nullptr);
 
 	if (!_window) {
@@ -72,9 +80,10 @@ void VulkanEngine::initVulkan()
 		4, 5, 1, 1, 0, 4,
 	};
 
+	std::filesystem::path texturePath = "../textures/tux.png";
 	std::filesystem::path path = "../models/Fox.glb";
 	Assets::GltfModel model;
-	if (model.Load(0)) {
+	if (model.Load(Gltf::GLTF_NOT_USED)) {
 		createVertexBuffer(model.GetVertices(), this);
 		createIndexBuffer(model.GetIndices(), this);
 	}
@@ -91,6 +100,9 @@ void VulkanEngine::initVulkan()
 	createGraphicsPipeline(this);
 	createFramebuffers(this);
 	createCommandPool(this);
+	createTextureImage(texturePath, this);
+	createTextureImageView(this);
+	createTextureSampler(this);
 	createVertexBuffer(primitive.vertices, this);
 	createIndexBuffer(primitive.indices, this);
 	createUniformBuffers(this);
@@ -119,6 +131,11 @@ void VulkanEngine::cleanup()
 	ImGui::DestroyContext();
 
 	cleanupSwapchain(this);
+	vkDestroySampler(_vk.device, _vk.textureSampler, nullptr);
+	vkDestroyImageView(_vk.device, _vk.textureImageView, nullptr);
+
+	vkDestroyImage(_vk.device, _vk.textureImage, nullptr);
+	vkFreeMemory(_vk.device, _vk.textureImageMemory, nullptr);
 
 	for (size_t i = 0; i < _vk.swapchainImages.size(); i++) {
 		vkDestroyBuffer(_vk.device, _vk.uniformBuffers[i], nullptr);

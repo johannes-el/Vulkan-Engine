@@ -1,8 +1,11 @@
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 #include <vector>
+#define GLFW_EXPOSE_NATIVE_WAYLAND
+#define GLFW_EXPOSE_NATIVE_X11
+#define NOMINMAX
+#include <GLFW/glfw3.h>
 #include <optional>
 #include <array>
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -54,6 +57,11 @@ struct VulkanContext {
 
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+
+	VkImage textureImage;
+	VkDeviceMemory textureImageMemory;
+	VkImageView textureImageView;
+	VkSampler textureSampler;
 
 	VkBuffer instanceBuffer;
 	VkDeviceMemory instanceBufferMemory;

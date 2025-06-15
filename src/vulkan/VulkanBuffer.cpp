@@ -5,6 +5,7 @@
 #include <chrono>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <vulkan/vulkan_core.h>
 
 void createVertexBuffer(std::vector<Vertex> vertices, VulkanEngine* engine)
 {
@@ -37,14 +38,15 @@ void createVertexBuffer(std::vector<Vertex> vertices, VulkanEngine* engine)
 	vkFreeMemory(engine->_vk.device, stagingBufferMemory, nullptr);
 }
 
-void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VulkanEngine* engine)
+VkCommandBuffer beginSingleTimeCommands(VulkanEngine *engine)
 {
-	VkCommandBuffer commandBuffer;
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandPool = engine->_vk.commandPool;
 	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer commandBuffer;
 
 	if (vkAllocateCommandBuffers(engine->_vk.device, &allocInfo, &commandBuffer) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to allocate command buffer!");
@@ -56,12 +58,11 @@ void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, Vulka
 
 	vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-	VkBufferCopy copyRegion{};
-	copyRegion.srcOffset = 0;
-	copyRegion.dstOffset = 0;
-	copyRegion.size = size;
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	return commandBuffer;
+}
 
+void endSingleTimeCommands(VkCommandBuffer commandBuffer, VulkanEngine *engine)
+{
 	vkEndCommandBuffer(commandBuffer);
 
 	VkSubmitInfo submitInfo{};
@@ -73,6 +74,17 @@ void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, Vulka
 	vkQueueWaitIdle(engine->_vk.graphicsQueue);
 
 	vkFreeCommandBuffers(engine->_vk.device, engine->_vk.commandPool, 1, &commandBuffer);
+}
+
+void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VulkanEngine* engine)
+{
+	VkCommandBuffer commandBuffer = beginSingleTimeCommands(engine);
+
+	VkBufferCopy copyRegion{};
+	copyRegion.size = size;
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	endSingleTimeCommands(commandBuffer, engine);
 }
 
 void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory, VulkanEngine* engine)

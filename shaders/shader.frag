@@ -5,6 +5,8 @@ layout(location = 1) in vec2 fragTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
+layout(binding = 1) uniform sampler2D texSampler;
+
 void main() {
 	vec3 normal = normalize(vec3(0.0, 0.0, 1.0));
 	vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
@@ -15,5 +17,5 @@ void main() {
 
 	vec3 color = ambient + diffuse;
 
-	outColor = vec4(color, 1.0);
+	outColor = texture(texSampler, fragTexCoord);
 }

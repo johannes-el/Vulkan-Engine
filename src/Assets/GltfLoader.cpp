@@ -4,10 +4,6 @@
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 
-// Image loading (STB Image)
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include <iostream>
 #include <stdexcept>
 
@@ -16,13 +12,15 @@ namespace Assets {
 	GltfModel::GltfModel() = default;
 	GltfModel::~GltfModel() = default;
 
-
 	bool GltfModel::Load(int const sceneID)
 	{
 		{
 			auto path = std::filesystem::path{m_Filepath};
 
-			// glTF files list their required extensions
+			if (!std::filesystem::exists(path)) {
+				return Gltf::GLTF_LOAD_FAILURE;
+			}
+
 			constexpr auto extensions =
 				fastgltf::Extensions::KHR_mesh_quantization | fastgltf::Extensions::KHR_materials_emissive_strength |
 				fastgltf::Extensions::KHR_lights_punctual | fastgltf::Extensions::KHR_texture_transform;
@@ -35,7 +33,7 @@ namespace Assets {
 
 			dataBuffer.FromPath(path);
 
-			fastgltf::Expected<fastgltf::Asset> asset = parser.loadGltf(dataBuffer, path.parent_path(), gltfOptions);
+			fastgltf::Expected<fastgltf::Asset> asset = parser.loadGltfBinary(dataBuffer, path.parent_path(), gltfOptions);
 			auto assetErrorCode = asset.error();
 
 			if (assetErrorCode != fastgltf::Error::None)
@@ -45,13 +43,11 @@ namespace Assets {
 			m_GltfAsset = std::move(asset.get());
 		}
 
-		if (!m_GltfAsset.meshes.size())
-		{
+		if (!m_GltfAsset.meshes.size()) {
 			return Gltf::GLTF_LOAD_FAILURE;
 		}
 
-		if (sceneID > Gltf::GLTF_NOT_USED)
-		{
+		if (sceneID > Gltf::GLTF_NOT_USED) {
 			if ((m_GltfAsset.scenes.size() - 1) < static_cast<size_t>(sceneID))
 			{
 				return Gltf::GLTF_LOAD_FAILURE;
@@ -59,14 +55,11 @@ namespace Assets {
 		}
 
 		// a scene ID was provided
-		if (sceneID > Gltf::GLTF_NOT_USED)
-		{
+		if (sceneID > Gltf::GLTF_NOT_USED) {
 			ProcessScene(m_GltfAsset.scenes[sceneID]);
 		}
-		else // no scene ID was provided --> use all scenes
-		{
-			for (auto& scene : m_GltfAsset.scenes)
-			{
+		else {
+			for (auto& scene : m_GltfAsset.scenes) {
 				ProcessScene(scene);
 			}
 		}
@@ -176,7 +169,8 @@ namespace Assets {
 	}
 
 
-	Float3 GltfModel::ConvertToFloat3(const glm::vec3& vec) {
+	Float3 GltfModel::ConvertToFloat3(const glm::vec3& vec)
+	{
 		return {vec.x, vec.y, vec.z};
 	}
 } // namespace Assets

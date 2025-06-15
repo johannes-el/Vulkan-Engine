@@ -64,6 +64,11 @@ std::vector<const char*> getRequiredExtensions()
 {
 	uint32_t count;
 	const char** glfwExt = glfwGetRequiredInstanceExtensions(&count);
+
+	for (auto i = 0; i < count; i++) {
+		std::cout << glfwExt[i] << std::endl;
+	}
+
 	std::vector<const char*> exts(glfwExt, glfwExt + count);
 	if (bEnableValidationLayers)
 		exts.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);

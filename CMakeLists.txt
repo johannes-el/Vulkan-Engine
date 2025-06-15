@@ -27,6 +27,7 @@ add_executable(VulkanApp
     src/vulkan/VulkanImGui.cpp
     src/vulkan/VulkanPipeline.cpp
     src/vulkan/VulkanRenderPass.cpp
+    src/vulkan/VulkanTexture.cpp
 )
 
 add_library(imgui
